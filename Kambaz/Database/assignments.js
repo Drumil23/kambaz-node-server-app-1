@@ -1,0 +1,13 @@
+export default [
+  {
+    _id: "A101",
+    title: "Propulsion Assignment",
+    course: "RS101",
+    description: "Analysis of rocket propulsion systems",
+    points: 100,
+    dueDate: "2025-11-01",
+    availableFrom: "2025-10-15",
+    type: "Assignment",
+    status: "PUBLISHED"
+  }
+];
