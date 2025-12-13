@@ -4,8 +4,15 @@ import * as enrollmentsDao from "../Enrollments/dao.js";
 
 export default function UserRoutes(app) {
   const createUser = async (req, res) => {
-    const user = await dao.createUser(req.body);
-    res.json(user);
+    try {
+      console.log('Creating user with data:', req.body);
+      const user = await dao.createUser(req.body);
+      console.log('User created successfully:', user);
+      res.json(user);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      res.status(500).json({ message: 'Failed to create user', error: error.message });
+    }
   };
 
   const deleteUser = async (req, res) => {
@@ -56,14 +63,21 @@ export default function UserRoutes(app) {
   };
 
   const signup = async (req, res) => {
-    const user = await dao.findUserByUsername(req.body.username);
-    if (user) {
-      res.status(400).json({ message: "Username already taken" });
-      return;
+    try {
+      console.log('Signup attempt with data:', req.body);
+      const user = await dao.findUserByUsername(req.body.username);
+      if (user) {
+        res.status(400).json({ message: "Username already taken" });
+        return;
+      }
+      const currentUser = await dao.createUser(req.body);
+      console.log('User signed up successfully:', currentUser);
+      req.session["currentUser"] = currentUser;
+      res.json(currentUser);
+    } catch (error) {
+      console.error('Error during signup:', error);
+      res.status(500).json({ message: 'Failed to signup', error: error.message });
     }
-    const currentUser = await dao.createUser(req.body);
-    req.session["currentUser"] = currentUser;
-    res.json(currentUser);
   };
 
   const signin = async (req, res) => {
