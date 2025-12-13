@@ -14,7 +14,12 @@ import "dotenv/config";
 const app = express()
 
 const CONNECTION_STRING = process.env.DATABASE_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kambaz"
-mongoose.connect(CONNECTION_STRING);
+console.log('🔗 Connecting to MongoDB with:', CONNECTION_STRING.substring(0, 30) + '...');
+mongoose.connect(CONNECTION_STRING).then(() => {
+    console.log('✅ MongoDB connected successfully');
+}).catch((err) => {
+    console.error('❌ MongoDB connection error:', err);
+});
 
 app.use(cors({
     credentials: true,
