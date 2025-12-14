@@ -1,39 +1,35 @@
-import Database from "../Database/index.js";
 import { v4 as uuidv4 } from "uuid";
-import model from "../Courses/model.js";
+import ModulesModel from "./model.js";
 
-export async function findModulesForCourse(courseId) {
-  const course = await model.findById(courseId);
-  return course.modules;
-  // const { modules } = Database;
-  // return modules.filter((m) => m.course === courseId);
-}
+export default function ModulesDao() {
+    async function findModulesForCourse(courseId) {
+        return ModulesModel.find({ course: courseId });
+    }
 
-export async function createModule(courseId, module) {
-  const newModule = { ...module, _id: uuidv4() };
-  const status = await model.updateOne(
-    { _id: courseId },
-    { $push: { modules: newModule } }
-  );
-  // Database.modules = [...Database.modules, newModule];
-  return newModule;
-}
+    async function createModule(courseId, module) {
+        const { _id, course, ...rest } = module;
+        const id = _id || uuidv4();
+        const doc = { ...rest, _id: id, course: courseId };
+        const created = await ModulesModel.create(doc);
+        return created;
+    }
 
-export async function deleteModule(courseId, moduleId) {
-  const status = await model.updateOne(
-    { _id: courseId },
-    { $pull: { modules: { _id: moduleId } } }
-  );
-  return status;
-  // const { modules } = Database;
-  // Database.modules = modules.filter((m) => m._id !== moduleId);
-}
+    async function deleteModule(courseId, moduleId) {
+        return ModulesModel.deleteOne({ _id: moduleId, course: courseId });
+    }
 
-export function updateModule(moduleId, moduleUpdates) {
-  const { modules } = Database;
-  const mod = modules.find((m) => m._id === moduleId);
-  if (!mod) return null;
-  Object.assign(mod, moduleUpdates);
-  Database.modules = modules.map((m) => (m._id === moduleId ? mod : m));
-  return mod;
+    async function updateModule(courseId, moduleId, moduleUpdates) {
+        const { _id, course, ...rest } = moduleUpdates;
+        return ModulesModel.updateOne(
+            { _id: moduleId, course: courseId },
+            { $set: rest }
+        );
+    }
+
+    return {
+        findModulesForCourse,
+        createModule,
+        deleteModule,
+        updateModule,
+    };
 }
