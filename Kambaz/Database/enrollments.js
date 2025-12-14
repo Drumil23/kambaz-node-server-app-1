@@ -1,4 +1,4 @@
-export const enrollments = [
+export default [
     {
         "_id": "1",
         "user": "123",

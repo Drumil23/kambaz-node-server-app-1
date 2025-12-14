@@ -1,4 +1,4 @@
-export const assignments = [
+export default [
   {
     "_id": "A101",
     "title": "Propulsion Assignment",
