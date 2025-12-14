@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 const { courses, enrollments } = Database;
 
 export function findAllCourses() {
-  return model.find({}, {number: 1, description: 1});
+  return model.find({});
 }
 
 export function createCourse(course) {

@@ -1,8 +1,5 @@
 import model from "./model.js";
-import db from "../Database/index.js";
 import { v4 as uuidv4 } from "uuid";
-
-let { users } = db;
 
 export const createUser = (user) => {
   // Remove _id if it exists to avoid conflicts with database insert
@@ -10,40 +7,33 @@ export const createUser = (user) => {
   
   const newUser = { ...user, _id: uuidv4() };
   return model.create(newUser);
-  
-  // In-memory implementation:
-  // const newUser = { ...user, _id: Date.now().toString() };
-  // users.push(newUser);
-  // return newUser;
 };
 
-export const findAllUsers = () => users;
+export const findAllUsers = () => model.find();
 
-export const findUserById = (userId) => users.find((user) => user._id === userId);
+export const findUserById = (userId) => model.findById(userId);
 
-export const findUserByUsername = (username) => users.find((user) => user.username === username);
+export const findUserByUsername = (username) => model.findOne({ username });
 
 export const findUserByCredentials = (username, password) =>
-  users.find((user) => user.username === username && user.password === password);
+  model.findOne({ username, password });
 
 export const updateUser = (userId, userUpdates) => {
-  const user = users.find((user) => user._id === userId);
-  Object.assign(user, userUpdates);
-  return user;
+  return model.updateOne({ _id: userId }, { $set: userUpdates });
 };
 
 export const deleteUser = (userId) => {
-  users = users.filter((user) => user._id !== userId);
-  db.users = users;
+  return model.deleteOne({ _id: userId });
 };
 
-export const findUsersByRole = (role) => users.filter((user) => user.role === role);
+export const findUsersByRole = (role) => model.find({ role });
 
 export const findUsersByPartialName = (partialName) => {
   const searchTerm = partialName.toLowerCase();
-  return users.filter((user) => {
-    const firstName = (user.firstName || "").toLowerCase();
-    const lastName = (user.lastName || "").toLowerCase();
-    return firstName.includes(searchTerm) || lastName.includes(searchTerm);
+  return model.find({
+    $or: [
+      { firstName: { $regex: searchTerm, $options: 'i' } },
+      { lastName: { $regex: searchTerm, $options: 'i' } }
+    ]
   });
 };
